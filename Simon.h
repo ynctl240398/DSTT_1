@@ -22,10 +22,8 @@ public:
 	virtual void Render();
 	virtual	void Move();
 	void SetState(int state);
-	int GetState() { return state; }
 	void CreateAnimation();
 	virtual void GetBoundingBox(float &left, float &top, float &right, float &bottom);
 	void KeyBoardHandler();
-	int GetDirection() { return direction; }
 };
 

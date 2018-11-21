@@ -4,7 +4,6 @@
 #include "Game.h"
 #include "StaticObject.h"
 #include "Textures.h"
-#include "KeyGame.h"
 
 enum Quarter
 {
@@ -19,6 +18,7 @@ class CWhip : public CStaticObject
 public:
 	CWhip();
 	~CWhip();
+	void SetState(int state);
 	virtual	void Update(DWORD dt, vector<LPGAMEOBJECT> *colliable_objects = NULL);
 	void CreateAnimation();
 	void setDirection(int dir) { this->direction = dir; }

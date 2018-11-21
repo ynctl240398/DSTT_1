@@ -18,8 +18,8 @@ void CSimon::Update(DWORD dt, vector<LPGAMEOBJECT> *colliable_objects)
 	CMovingObject::Update(dt);
 	KeyBoardHandler();
 	Move();
-	whip->SetPosition(position);
 	velocity.y += SIMON_GRAVITY;
+	whip->SetPosition(position);
 	if (position.y > GROUND_HEIGHT)
 	{
 		velocity.y = 0;
@@ -40,9 +40,12 @@ void CSimon::Render()
 	
 	if (state == SIMON_STATE_ATTACK)
 	{
-		whip->Render();
+		whip->SetState(WHIP_STATE_ATTACK);
 	}
-	animations[ani]->Render(position);
+	else
+	{
+		whip->SetState(WHIP_STATE_NORMAL);
+	}
 	if (animations[ani]->getDone() == true)
 	{
 		if (state == SIMON_STATE_ATTACK || state == SIMON_STATE_SIT_ATTACK)
@@ -50,11 +53,14 @@ void CSimon::Render()
 			animations[ani]->setDone(false);
 			animations[ani]->setCurrentFrame(-1);
 		}
-		if (state != SIMON_STATE_WALK && state != SIMON_STATE_JUMP && state != SIMON_STATE_JUMP_TO)
+		if (state != SIMON_STATE_WALK && state != SIMON_STATE_JUMP && state != SIMON_STATE_JUMP_TO && state != SIMON_STATE_SIT)
 		{
 			SetState(SIMON_STATE_IDDLE);
 		}
 	}
+	whip->Render();
+	animations[ani]->Render(position);
+	
 }
 void CSimon::Move()
 {
@@ -88,15 +94,17 @@ void CSimon::SetState(int state)
 		{
 			velocity = { 0,0 };
 		}
-		else velocity.y += SIMON_GRAVITY;
 		if (direction == -1)
 			ani = SIMON_ANI_ATTACK_LEFT;
 		else ani = SIMON_ANI_ATTACK_RIGHT;
-		//whip = new CWhip();
 		whip->setDirection(direction);
 		break;
 	case SIMON_STATE_IDDLE:
-		velocity = { 0, 0 };
+		if (isOnGround)
+		{
+
+			velocity = { 0, 0 };
+		}
 		if (direction == -1)
 			ani = SIMON_ANI_IDLE_LEFT;
 		else ani = SIMON_ANI_IDLE_RIGHT;
@@ -182,14 +190,14 @@ void CSimon::CreateAnimation()
 	ani->Add(10001);
 	animations->Add(503, ani);
 
-	ani = new CAnimation(50);  //attack left
+	ani = new CAnimation(100);  //attack left
 	ani->Add(10020);
 	ani->Add(10021);
 	ani->Add(10022);
 	ani->Add(10023);
 	animations->Add(504, ani);
 
-	ani = new CAnimation(1000); //attack right
+	ani = new CAnimation(100); //attack right
 	ani->Add(10030);
 	ani->Add(10031);
 	ani->Add(10032);
@@ -251,7 +259,7 @@ void CSimon::KeyBoardHandler()
 			}
 			else
 			{
-				if (k->keyJumpPress)
+				if (k->keyJump)
 				{
 					if (k->keyMove) SetState(SIMON_STATE_JUMP_TO);
 					else SetState(SIMON_STATE_JUMP);
@@ -263,7 +271,7 @@ void CSimon::KeyBoardHandler()
 				else SetState(SIMON_STATE_IDDLE);
 			}
 		}
+		if (k->keyLeft) direction = -1;
+		else if (k->keyRight) direction = 1;
 	}
-	if (k->keyLeft) direction = -1;
-	else if (k->keyRight) direction = 1;
 }
